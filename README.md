@@ -1,6 +1,11 @@
-# Deploying multilingual-e5-small on Databricks
+# multilingual-e5-small on Databricks
 
-A step-by-step guide and notebook for deploying the [multilingual-e5-small](https://huggingface.co/intfloat/multilingual-e5-small) text embedding model on Databricks using MLflow, Unity Catalog, and Model Serving.
+Notebooks for deploying and fine-tuning the [multilingual-e5-small](https://huggingface.co/intfloat/multilingual-e5-small) text embedding model on Databricks using MLflow, Unity Catalog, and Model Serving.
+
+| Notebook | Description |
+|----------|-------------|
+| [`deploy_multilingual_e5_small.ipynb`](deploy_multilingual_e5_small.ipynb) | Deploy the base model to a serving endpoint |
+| [`finetune_multilingual_e5_small.ipynb`](finetune_multilingual_e5_small.ipynb) | Fine-tune on your own data using CPU (no GPU required) |
 
 ## What is multilingual-e5-small?
 
@@ -137,6 +142,25 @@ passage_embedding = response.data[1].embedding
 similarity = cosine_similarity(query_embedding, passage_embedding)
 print(f"Similarity: {similarity:.4f}")
 ```
+
+## Fine-Tuning on CPU
+
+The `finetune_multilingual_e5_small.ipynb` notebook walks through fine-tuning the model on your own domain data using **CPU-only** compute. This is useful when GPU instances are unavailable (e.g., GCP availability constraints).
+
+### Requirements
+- GCP instance: `n2-standard-16` (64GB RAM) or `n2-standard-32` (128GB RAM)
+- Databricks Runtime: 15.4 LTS ML or later
+- Training data as query/passage pairs with similarity scores in a Delta table
+
+### Training Time Estimates (CPU)
+| Dataset Size | Epochs | Approximate Time |
+|-------------|--------|-----------------|
+| 100 pairs | 3 | < 1 minute |
+| 1,000 pairs | 3 | 15-30 minutes |
+| 10,000 pairs | 3 | 2-4 hours |
+
+### GPU Upgrade Path
+When GPU instances become available, change `device="cpu"` to `device="cuda"` and set `fp16=True` in training arguments. Everything else stays the same.
 
 ## Deployment Architecture
 
